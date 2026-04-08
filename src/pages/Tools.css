@@ -1,0 +1,119 @@
+/* src/pages/Tools.css */
+.tools-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 48px 24px;
+}
+
+.tools-header {
+  text-align: center;
+  margin-bottom: 36px;
+}
+
+.tools-header h1 {
+  font-size: 36px;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.tools-header p {
+  font-size: 16px;
+  color: var(--gray-500);
+  margin-bottom: 24px;
+}
+
+.tools-search {
+  width: 100%;
+  max-width: 480px;
+  height: 48px;
+  padding: 0 18px;
+  border: 1.5px solid var(--gray-300);
+  border-radius: var(--radius-full);
+  font-size: 15px;
+  outline: none;
+  transition: all 0.15s;
+  box-shadow: var(--shadow-sm);
+}
+.tools-search:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+
+.tools-categories {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
+  justify-content: center;
+}
+
+.cat-btn {
+  padding: 8px 18px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius-full);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray-600);
+  background: white;
+  transition: all 0.15s;
+  font-family: var(--font-display);
+  cursor: pointer;
+}
+.cat-btn:hover { border-color: var(--primary); color: var(--primary); }
+.cat-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+.all-tools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.tool-item {
+  background: white;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.tool-item:hover {
+  border-color: var(--primary);
+  background: var(--primary-pale);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.tool-item-formats {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.format-badge {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-display);
+  letter-spacing: 0.03em;
+}
+.format-badge.from { background: #fef3c7; color: #92400e; }
+.format-badge.to { background: var(--primary-pale); color: var(--primary-dark); }
+
+.tool-item-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray-800);
+  font-family: var(--font-display);
+}
+
+.tools-empty {
+  text-align: center;
+  padding: 48px;
+  color: var(--gray-500);
+}
+
+@media (max-width: 600px) {
+  .all-tools-grid { grid-template-columns: repeat(2, 1fr); }
+}
