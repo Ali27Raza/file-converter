@@ -13,7 +13,7 @@ def test_conversion():
         return
 
     # Test the conversion endpoint
-    url = 'http://localhost:5000/convert'
+    url = ' '
 
     try:
         with open(test_file, 'rb') as f:

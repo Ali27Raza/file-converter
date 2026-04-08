@@ -1,5 +1,5 @@
 // src/pages/Convert.js
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useDropzone } from "react-dropzone";
 import { useAuth } from "../context/AuthContext";
@@ -7,6 +7,7 @@ import {
   convertFile,
   formatFileSize,
   POPULAR_CONVERSIONS,
+  getFileExtension,
 } from "../utils/conversionService";
 import {
   Upload,
@@ -18,6 +19,37 @@ import {
   AlertCircle,
 } from "lucide-react";
 import "./Convert.css";
+
+const IMAGE_FORMATS = ["JPG", "JPEG", "PNG", "WEBP", "GIF"];
+
+function getOutputOptions(fileName) {
+  if (!fileName) return ["PDF"];
+
+  const inputExt = getFileExtension(fileName);
+
+  if (["DOC", "DOCX", "XLS", "XLSX", "PPT", "PPTX"].includes(inputExt)) {
+    return ["PDF"];
+  }
+
+  if (IMAGE_FORMATS.includes(inputExt)) {
+    return ["PDF", ...IMAGE_FORMATS.filter((fmt) => fmt !== inputExt)];
+  }
+
+  if (inputExt === "PDF") {
+    return ["JPG", "PNG", "DOCX"];
+  }
+
+  return ["PDF"];
+}
+
+function isImageOutput(format) {
+  return IMAGE_FORMATS.includes((format || "").toUpperCase());
+}
+
+function getFilenameExtension(fileName) {
+  if (!fileName || !fileName.includes(".")) return "";
+  return fileName.split(".").pop().toUpperCase();
+}
 
 export default function Convert() {
   const location = useLocation();
@@ -32,10 +64,18 @@ export default function Convert() {
   const [progressLabel, setProgressLabel] = useState("");
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
+  const outputOptions = getOutputOptions(file?.name);
+
+  useEffect(() => {
+    if (!outputOptions.includes(outputFormat)) {
+      setOutputFormat(outputOptions[0]);
+    }
+  }, [file, outputOptions, outputFormat]);
 
   const onDrop = useCallback((acceptedFiles) => {
     if (acceptedFiles.length > 0) {
       setFile(acceptedFiles[0]);
+      setOutputFormat(getOutputOptions(acceptedFiles[0].name)[0]);
       setStatus("idle");
       setResult(null);
       setError("");
@@ -47,9 +87,21 @@ export default function Convert() {
     multiple: false,
     maxSize: 100 * 1024 * 1024,
     accept: {
-      "application/msword": [".doc", ".docx"],
+      "application/pdf": [".pdf"],
+      "application/msword": [".doc"],
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
         [".docx"],
+      "application/vnd.ms-excel": [".xls"],
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [
+        ".xlsx",
+      ],
+      "application/vnd.ms-powerpoint": [".ppt"],
+      "application/vnd.openxmlformats-officedocument.presentationml.presentation":
+        [".pptx"],
+      "image/jpeg": [".jpg", ".jpeg"],
+      "image/png": [".png"],
+      "image/webp": [".webp"],
+      "image/gif": [".gif"],
     },
   });
 
@@ -96,11 +148,39 @@ export default function Convert() {
     }
   }
 
+  async function handleDownload() {
+    if (!result?.downloadUrl) return;
+
+    try {
+      const response = await fetch(result.downloadUrl);
+      if (!response.ok) {
+        throw new Error("Failed to download file from server.");
+      }
+
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const tempLink = document.createElement("a");
+      tempLink.href = blobUrl;
+      tempLink.download = outputName || result.filename || "converted-file";
+      document.body.appendChild(tempLink);
+      tempLink.click();
+      tempLink.remove();
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (downloadError) {
+      setError(downloadError.message || "Download failed. Please try again.");
+      setStatus("error");
+    }
+  }
+
   const outputName =
     result?.filename ||
     (file
       ? `converted_${file.name.split(".")[0]}.${outputFormat.toLowerCase()}`
       : "");
+
+  const displayFormat = (result?.outputFormat || outputFormat || "").toUpperCase();
+  const resultExt = getFilenameExtension(result?.filename);
+  const canPreviewImage = isImageOutput(displayFormat) && resultExt !== "ZIP";
 
   return (
     <div className="convert-page">
@@ -143,49 +223,56 @@ export default function Convert() {
 
               <div className="result-file-box">
                 <div className="result-file-preview">
-                  <div className="result-file-icon">
-                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-                      <rect
-                        x="3"
-                        y="2"
-                        width="17"
-                        height="22"
-                        rx="3"
-                        fill="#2563eb"
-                        opacity="0.15"
-                      />
-                      <rect
-                        x="3"
-                        y="2"
-                        width="17"
-                        height="22"
-                        rx="3"
-                        stroke="#2563eb"
-                        strokeWidth="1.5"
-                      />
-                      <path
-                        d="M7 10h10M7 13.5h10M7 17h7"
-                        stroke="#2563eb"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                      />
-                    </svg>
-                  </div>
+                  {canPreviewImage ? (
+                    <img
+                      src={result.downloadUrl}
+                      alt="Converted output preview"
+                      className="result-image-preview"
+                    />
+                  ) : (
+                    <div className="result-file-icon">
+                      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                        <rect
+                          x="3"
+                          y="2"
+                          width="17"
+                          height="22"
+                          rx="3"
+                          fill="#2563eb"
+                          opacity="0.15"
+                        />
+                        <rect
+                          x="3"
+                          y="2"
+                          width="17"
+                          height="22"
+                          rx="3"
+                          stroke="#2563eb"
+                          strokeWidth="1.5"
+                        />
+                        <path
+                          d="M7 10h10M7 13.5h10M7 17h7"
+                          stroke="#2563eb"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                    </div>
+                  )}
                 </div>
                 <div className="result-file-info">
                   <p className="result-filename">{outputName}</p>
                   <p className="result-meta">
-                    {outputFormat} Document • {formatFileSize(result.fileSize)}{" "}
+                    {displayFormat} Document • {formatFileSize(result.fileSize)}{" "}
                     • {result.pages || ""} {result.pages ? "Pages" : ""}
                   </p>
                   <div className="result-actions">
-                    <a
-                      href={result.downloadUrl}
-                      download={outputName}
+                    <button
                       className="btn btn-primary btn-lg"
+                      onClick={handleDownload}
                     >
                       <Download size={16} /> Download Now
-                    </a>
+                    </button>
                     <button className="btn btn-outline" onClick={handleShare}>
                       <Share2 size={16} /> Share
                     </button>
@@ -266,10 +353,10 @@ export default function Convert() {
                   <p className="dropzone-title">
                     {isDragActive
                       ? "Drop your file here..."
-                      : "Drag & Drop a Word file here"}
+                      : "Drag & Drop your file here"}
                   </p>
                   <p className="dropzone-sub">
-                    Supports .doc and .docx files. Output is PDF only.
+                    Supports Word, Excel, PowerPoint, PDF, JPG, PNG, WEBP, GIF.
                   </p>
                   <button className="btn btn-primary btn-sm" type="button">
                     Choose File
@@ -324,7 +411,11 @@ export default function Convert() {
                     value={outputFormat}
                     onChange={(e) => setOutputFormat(e.target.value)}
                   >
-                    <option value="PDF">PDF</option>
+                    {outputOptions.map((formatOption) => (
+                      <option key={formatOption} value={formatOption}>
+                        {formatOption}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <button

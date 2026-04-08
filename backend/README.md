@@ -1,6 +1,20 @@
-# Python Backend for Word to PDF Conversion
+# Python Backend for Multi-Format to PDF Conversion
 
-This backend uses the `pypandoc` library to convert Word documents to PDF.
+This backend converts multiple file types to PDF using Spire libraries and Pillow:
+
+- Word: `.doc`, `.docx`
+- Excel: `.xls`, `.xlsx`
+- PowerPoint: `.ppt`, `.pptx`
+- Images: `.jpg`, `.jpeg`, `.png`, `.webp`, `.gif`
+
+It also converts PDF files to other formats:
+
+- PDF to image: `.jpg`, `.png` (all pages; multi-page PDFs are returned as a `.zip` of page images)
+- PDF to Word: `.docx`
+
+And image files between formats:
+
+- `.jpg` / `.jpeg` / `.png` / `.webp` / `.gif` to each other
 
 ## Setup
 
@@ -22,13 +36,13 @@ The server will start on http://localhost:5000
 
 ### POST /convert
 
-Upload a Word file (.doc or .docx) to convert to PDF.
+Upload a supported file to convert to PDF.
 
 **Request:**
 
 - Method: POST
 - Content-Type: multipart/form-data
-- Body: file (Word document)
+- Body: file (supported document/image)
 
 **Response:**
 
@@ -40,7 +54,46 @@ Upload a Word file (.doc or .docx) to convert to PDF.
 }
 ```
 
+### POST /convert-pdf
+
+Upload a `.pdf` file and provide `outputFormat` in form-data.
+
+**Request:**
+
+- Method: POST
+- Content-Type: multipart/form-data
+- Body:
+  - `file` (PDF file)
+  - `outputFormat` (`jpg`, `jpeg`, `png`, `word`, or `docx`)
+
+**Response:**
+
+```json
+{
+  "downloadUrl": "http://localhost:5000/uploads/converted.jpg",
+  "filename": "converted.jpg",
+  "outputFormat": "jpg"
+}
+```
+
+### POST /convert-image
+
+Upload an image file and provide `outputFormat` in form-data.
+
+**Request:**
+
+- Method: POST
+- Content-Type: multipart/form-data
+- Body:
+  - `file` (image file: jpg/jpeg/png/webp/gif)
+  - `outputFormat` (`jpg`, `jpeg`, `png`, `webp`, or `gif`)
+
 ## Requirements
 
 - Python 3.7+
-- Pandoc (https://pandoc.org/)
+- Spire.Doc Python package
+- Spire.XLS Python package
+- Spire.Presentation Python package
+- Pillow Python package
+- PyMuPDF Python package
+- pdf2docx Python package

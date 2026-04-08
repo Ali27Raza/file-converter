@@ -1,10 +1,24 @@
 // src/utils/conversionService.js
-// This handles file conversion using Python backend with docx2pdf library
+// This handles file conversion using Python backend endpoints
 
 const BACKEND_URL =
   process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
 
-// The backend currently supports Word to PDF conversion only.
+const PDF_INPUT_FORMATS = ["PDF"];
+const IMAGE_FORMATS = ["JPG", "JPEG", "PNG", "WEBP", "GIF"];
+const TO_PDF_SOURCE_FORMATS = [
+  "DOC",
+  "DOCX",
+  "XLS",
+  "XLSX",
+  "PPT",
+  "PPTX",
+  "JPG",
+  "JPEG",
+  "PNG",
+  "WEBP",
+  "GIF",
+];
 
 export const SUPPORTED_FORMATS = {
   PDF: {
@@ -112,16 +126,38 @@ export async function convertFile(file, outputFormat, userId, onProgress) {
     throw new Error("No file selected for conversion.");
   }
 
-  if (outputFormat?.toUpperCase() !== "PDF") {
-    throw new Error("This version only supports Word to PDF conversion.");
+  const normalizedOutput = (outputFormat || "").toUpperCase();
+  const inputExt = getFileExtension(file.name);
+  let endpoint = null;
+  let backendOutputFormat = normalizedOutput.toLowerCase();
+
+  if (TO_PDF_SOURCE_FORMATS.includes(inputExt) && normalizedOutput === "PDF") {
+    endpoint = "/convert";
+  } else if (
+    PDF_INPUT_FORMATS.includes(inputExt) &&
+    ["JPG", "JPEG", "PNG", "DOCX", "WORD"].includes(normalizedOutput)
+  ) {
+    endpoint = "/convert-pdf";
+    backendOutputFormat = normalizedOutput === "WORD" ? "docx" : normalizedOutput.toLowerCase();
+  } else if (
+    IMAGE_FORMATS.includes(inputExt) &&
+    IMAGE_FORMATS.includes(normalizedOutput)
+  ) {
+    endpoint = "/convert-image";
+    backendOutputFormat = normalizedOutput === "JPEG" ? "jpg" : normalizedOutput.toLowerCase();
+  } else {
+    throw new Error(`Conversion ${inputExt} → ${normalizedOutput} is not supported yet.`);
   }
 
   onProgress && onProgress({ stage: "uploading", percent: 10 });
 
   const formData = new FormData();
   formData.append("file", file, file.name);
+  if (endpoint === "/convert-pdf" || endpoint === "/convert-image") {
+    formData.append("outputFormat", backendOutputFormat);
+  }
 
-  const response = await fetch(`${BACKEND_URL}/convert`, {
+  const response = await fetch(`${BACKEND_URL}${endpoint}`, {
     method: "POST",
     body: formData,
   });
@@ -140,7 +176,9 @@ export async function convertFile(file, outputFormat, userId, onProgress) {
     downloadUrl: data.downloadUrl,
     filename: data.filename,
     fileSize: file.size,
-    outputFormat: "PDF",
+    outputFormat: (data.outputFormat || normalizedOutput).toUpperCase(),
+    pages: data.pageCount,
+    packageType: data.packageType,
   };
 }
 
