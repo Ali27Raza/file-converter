@@ -1,28 +1,46 @@
-# NextConvertIFile Backend
+# Python Backend for Word to PDF Conversion
 
-A small backend service to convert Word files to PDF using CloudConvert.
+This backend uses the `pypandoc` library to convert Word documents to PDF.
 
 ## Setup
 
-1. Open a terminal in `backend/`
-2. Run `npm install`
-3. Copy or update `.env` with your CloudConvert API key:
-
-```
-CLOUDCONVERT_API_KEY=your_cloudconvert_api_key_here
-```
-
-## Run
+1. Install Python dependencies:
 
 ```bash
-npm start
+pip install -r requirements.txt
 ```
 
-## Usage
+2. Run the server:
 
-Send a POST request to `http://localhost:4000/convert` with form-data:
+```bash
+python app.py
+```
 
-- field name: `file`
-- file: a `.docx` or `.doc` Word document
+The server will start on http://localhost:5000
 
-The response will contain a JSON object with `downloadUrl` for the converted PDF.
+## API
+
+### POST /convert
+
+Upload a Word file (.doc or .docx) to convert to PDF.
+
+**Request:**
+
+- Method: POST
+- Content-Type: multipart/form-data
+- Body: file (Word document)
+
+**Response:**
+
+```json
+{
+  "downloadUrl": "http://localhost:5000/uploads/converted.pdf",
+  "filename": "converted.pdf",
+  "outputFormat": "pdf"
+}
+```
+
+## Requirements
+
+- Python 3.7+
+- Pandoc (https://pandoc.org/)
