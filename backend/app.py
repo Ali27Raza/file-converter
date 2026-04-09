@@ -321,6 +321,79 @@ def convert_pdf_file():
 		return jsonify({"error": f"Conversion failed: {str(error)}"}), 500
 
 
+@app.route("/convert-doc-to-image", methods=["POST"])
+def convert_doc_to_image():
+	if "file" not in request.files:
+		return jsonify({"error": "No file part in the request"}), 400
+
+	file = request.files["file"]
+	if file.filename == "":
+		return jsonify({"error": "No file selected"}), 400
+
+	filename = secure_filename(file.filename)
+	extension = get_extension(filename) if "." in filename else ""
+	if extension not in (WORD_EXTENSIONS | POWERPOINT_EXTENSIONS):
+		return jsonify({"error": "Only .doc, .docx, .ppt, .pptx files are allowed for this endpoint"}), 400
+
+	output_format = request.form.get("outputFormat", "jpg").lower().strip()
+	if output_format not in {"jpg", "jpeg", "png"}:
+		return jsonify({"error": "outputFormat must be one of: jpg, jpeg, png"}), 400
+
+	input_path = None
+	pdf_path = None
+	output_path = None
+
+	try:
+		filename_no_ext = os.path.splitext(filename)[0]
+		input_path = os.path.join(UPLOAD_FOLDER, filename)
+		file.save(input_path)
+
+		# Step 1: Convert Word/PPT to PDF
+		pdf_filename = f"{filename_no_ext}_temp.pdf"
+		pdf_path = os.path.join(UPLOAD_FOLDER, pdf_filename)
+		convert_to_pdf(input_path, pdf_path, extension)
+
+		if not os.path.exists(pdf_path):
+			return jsonify({"error": "Conversion failed - PDF intermediate file not created"}), 500
+
+		# Step 2: Convert PDF to images
+		ext = "jpg" if output_format in {"jpg", "jpeg"} else "png"
+		output_filename, output_path, response_format, page_count = convert_pdf_to_images(
+			pdf_path,
+			UPLOAD_FOLDER,
+			filename_no_ext,
+			ext,
+		)
+		package_type = "zip" if output_filename.lower().endswith(".zip") else "file"
+
+		if not os.path.exists(output_path):
+			return jsonify({"error": "Conversion failed - output file not created"}), 500
+
+		# Cleanup temporary files
+		os.remove(input_path)
+		os.remove(pdf_path)
+
+		return jsonify(
+			{
+				"downloadUrl": f"http://localhost:5000/uploads/{output_filename}",
+				"filename": output_filename,
+				"outputFormat": response_format,
+				"pageCount": page_count,
+				"packageType": package_type,
+			}
+		)
+
+	except Exception as error:
+		if input_path and os.path.exists(input_path):
+			os.remove(input_path)
+		if pdf_path and os.path.exists(pdf_path):
+			os.remove(pdf_path)
+		if output_path and os.path.exists(output_path):
+			os.remove(output_path)
+
+		return jsonify({"error": f"Conversion failed: {str(error)}"}), 500
+
+
 @app.route("/convert-image", methods=["POST"])
 def convert_image_file():
 	if "file" not in request.files:

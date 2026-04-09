@@ -27,7 +27,11 @@ function getOutputOptions(fileName) {
 
   const inputExt = getFileExtension(fileName);
 
-  if (["DOC", "DOCX", "XLS", "XLSX", "PPT", "PPTX"].includes(inputExt)) {
+  if (["DOC", "DOCX", "PPT", "PPTX"].includes(inputExt)) {
+    return ["PDF", "JPG", "PNG"];
+  }
+
+  if (["XLS", "XLSX"].includes(inputExt)) {
     return ["PDF"];
   }
 
@@ -178,7 +182,11 @@ export default function Convert() {
       ? `converted_${file.name.split(".")[0]}.${outputFormat.toLowerCase()}`
       : "");
 
-  const displayFormat = (result?.outputFormat || outputFormat || "").toUpperCase();
+  const displayFormat = (
+    result?.outputFormat ||
+    outputFormat ||
+    ""
+  ).toUpperCase();
   const resultExt = getFilenameExtension(result?.filename);
   const canPreviewImage = isImageOutput(displayFormat) && resultExt !== "ZIP";
 
@@ -231,7 +239,12 @@ export default function Convert() {
                     />
                   ) : (
                     <div className="result-file-icon">
-                      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                      <svg
+                        width="28"
+                        height="28"
+                        viewBox="0 0 28 28"
+                        fill="none"
+                      >
                         <rect
                           x="3"
                           y="2"

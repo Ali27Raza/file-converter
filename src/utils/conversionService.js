@@ -32,12 +32,35 @@ export const SUPPORTED_FORMATS = {
     color: "#2980b9",
   },
   JPG: {
-    from: ["PNG", "WEBP", "GIF", "BMP", "HEIC", "PDF", "SVG"],
+    from: [
+      "PNG",
+      "WEBP",
+      "GIF",
+      "BMP",
+      "HEIC",
+      "PDF",
+      "SVG",
+      "DOC",
+      "DOCX",
+      "PPT",
+      "PPTX",
+    ],
     icon: "🖼️",
     color: "#27ae60",
   },
   PNG: {
-    from: ["JPG", "WEBP", "GIF", "BMP", "SVG", "PDF"],
+    from: [
+      "JPG",
+      "WEBP",
+      "GIF",
+      "BMP",
+      "SVG",
+      "PDF",
+      "DOC",
+      "DOCX",
+      "PPT",
+      "PPTX",
+    ],
     icon: "🖼️",
     color: "#8e44ad",
   },
@@ -101,6 +124,30 @@ export const POPULAR_CONVERSIONS = [
     desc: "Convert images to PNG format",
   },
   {
+    from: "DOCX",
+    to: "JPG",
+    label: "Word to JPG",
+    desc: "Convert Word documents to images",
+  },
+  {
+    from: "DOCX",
+    to: "PNG",
+    label: "Word to PNG",
+    desc: "Convert Word documents to PNG images",
+  },
+  {
+    from: "PPTX",
+    to: "JPG",
+    label: "PPT to JPG",
+    desc: "Convert PowerPoint slides to images",
+  },
+  {
+    from: "PPTX",
+    to: "PNG",
+    label: "PPT to PNG",
+    desc: "Convert PowerPoint slides to PNG images",
+  },
+  {
     from: "MP4",
     to: "MP3",
     label: "MP4 to MP3",
@@ -138,22 +185,37 @@ export async function convertFile(file, outputFormat, userId, onProgress) {
     ["JPG", "JPEG", "PNG", "DOCX", "WORD"].includes(normalizedOutput)
   ) {
     endpoint = "/convert-pdf";
-    backendOutputFormat = normalizedOutput === "WORD" ? "docx" : normalizedOutput.toLowerCase();
+    backendOutputFormat =
+      normalizedOutput === "WORD" ? "docx" : normalizedOutput.toLowerCase();
   } else if (
     IMAGE_FORMATS.includes(inputExt) &&
     IMAGE_FORMATS.includes(normalizedOutput)
   ) {
     endpoint = "/convert-image";
-    backendOutputFormat = normalizedOutput === "JPEG" ? "jpg" : normalizedOutput.toLowerCase();
+    backendOutputFormat =
+      normalizedOutput === "JPEG" ? "jpg" : normalizedOutput.toLowerCase();
+  } else if (
+    ["DOC", "DOCX", "PPT", "PPTX"].includes(inputExt) &&
+    ["JPG", "JPEG", "PNG"].includes(normalizedOutput)
+  ) {
+    endpoint = "/convert-doc-to-image";
+    backendOutputFormat =
+      normalizedOutput === "JPEG" ? "jpg" : normalizedOutput.toLowerCase();
   } else {
-    throw new Error(`Conversion ${inputExt} → ${normalizedOutput} is not supported yet.`);
+    throw new Error(
+      `Conversion ${inputExt} → ${normalizedOutput} is not supported yet.`,
+    );
   }
 
   onProgress && onProgress({ stage: "uploading", percent: 10 });
 
   const formData = new FormData();
   formData.append("file", file, file.name);
-  if (endpoint === "/convert-pdf" || endpoint === "/convert-image") {
+  if (
+    endpoint === "/convert-pdf" ||
+    endpoint === "/convert-image" ||
+    endpoint === "/convert-doc-to-image"
+  ) {
     formData.append("outputFormat", backendOutputFormat);
   }
 
