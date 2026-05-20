@@ -152,9 +152,9 @@ export function HomePage() {
             </div>
 
             <h1 className="text-4xl md:text-5xl font-extrabold leading-tight mb-4" style={{ color: "var(--text)" }}>
-              Convert <span className="text-[var(--accent)]">anything</span>
+              Convert <span className="text-[var(--accent)]">File Format</span>
               <br className="hidden md:block" />
-              to anything.
+              to any supported format.
             </h1>
 
             <p className="text-base md:text-lg text-[var(--muted)] mb-2">

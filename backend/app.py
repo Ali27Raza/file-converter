@@ -26,7 +26,12 @@ def home():
 
 @app.route("/uploads/<path:filename>")
 def uploaded_file(filename):
-    return send_from_directory(UPLOAD_FOLDER, filename)
+    return send_from_directory(
+        UPLOAD_FOLDER,
+        filename,
+        as_attachment=True,
+        download_name=filename,
+    )
 
 
 if __name__ == "__main__":

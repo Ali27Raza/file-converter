@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { FiMenu, FiX, FiChevronRight } from "react-icons/fi";
 
-const NAV_LINKS = [
+export const NAV_LINKS = [
   { to: "/", label: "Home" },
   { to: "/image-to-pdf", label: "Image to PDF" },
   { to: "/word-to-image", label: "Word to Image" },

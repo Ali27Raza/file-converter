@@ -1,50 +1,72 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import logo from "../../assets/logo.png";
+import { NAV_LINKS } from "./Navbar";
+import { FiGithub, FiTwitter, FiMail } from "react-icons/fi";
 
 export function Footer() {
   return (
-    <footer style={{ background: "var(--surface)", borderTop: "1px solid var(--border)" }} className="mt-12">
-      <div className="max-w-6xl mx-auto px-6 py-12 md:flex md:items-start md:gap-12">
-        <div className="md:flex-1 mb-6 md:mb-0">
-          <div className="text-2xl font-extrabold" style={{ color: "var(--text)" }}>
-            File<span style={{ color: "var(--accent)" }}>Forge</span>
+    <footer className="mt-12 bg-[var(--surface)] border-t border-[var(--border)]">
+      <div className="max-w-6xl mx-auto px-6 py-12">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-10 items-start">
+          {/* Brand */}
+          <div className="md:col-span-1 flex flex-col gap-4">
+            <div className="flex items-center gap-3">
+              <img src={logo} alt="FileForge logo" className="w-10 h-10 object-contain rounded-md shadow-sm" />
+              <div>
+                <div className="text-lg font-extrabold text-[var(--text)]">File<span className="text-[var(--accent)]">Forge</span></div>
+                <div className="text-xs text-[var(--muted)]">Fast, private file conversion</div>
+              </div>
+            </div>
+            <p className="text-sm text-[var(--muted)] max-w-sm">
+              Convert documents and images quickly — no account, no tracking, files removed after conversion.
+            </p>
+            <div className="flex items-center gap-3 mt-2">
+              <a href="https://github.com" target="_blank" rel="noreferrer" className="text-[var(--muted)] hover:text-[var(--text)]">
+                <FiGithub size={18} />
+              </a>
+              <a href="https://twitter.com" target="_blank" rel="noreferrer" className="text-[var(--muted)] hover:text-[var(--text)]">
+                <FiTwitter size={18} />
+              </a>
+              <a href="mailto:hello@example.com" className="text-[var(--muted)] hover:text-[var(--text)]">
+                <FiMail size={18} />
+              </a>
+            </div>
           </div>
-          <p className="mt-3 text-sm text-[var(--muted)] max-w-md">
-            Fast, private file conversion. Your files are processed locally and deleted after conversion — never stored or shared.
-          </p>
-        </div>
 
-        <div className="grid grid-cols-2 gap-6 min-w-[220px]">
-          <div>
-            <p className="text-xs uppercase tracking-wider text-[var(--accent)] mb-3">Converters</p>
-            <nav className="flex flex-col gap-2">
-              <Link to="/" className="text-sm text-[var(--muted)] hover:text-[var(--text)]">Any to Any</Link>
-              <Link to="/image-to-pdf" className="text-sm text-[var(--muted)] hover:text-[var(--text)]">Image to PDF</Link>
-              <Link to="/word-to-image" className="text-sm text-[var(--muted)] hover:text-[var(--text)]">Word to Image</Link>
-              <Link to="/word-to-pdf" className="text-sm text-[var(--muted)] hover:text-[var(--text)]">Word to PDF</Link>
-              <Link to="/excel-to-pdf" className="text-sm text-[var(--muted)] hover:text-[var(--text)]">Excel to PDF</Link>
-              <Link to="/powerpoint-to-pdf" className="text-sm text-[var(--muted)] hover:text-[var(--text)]">PowerPoint to PDF</Link>
-              <Link to="/pdf-to-word" className="text-sm text-[var(--muted)] hover:text-[var(--text)]">PDF to Word</Link>
-              <Link to="/pdf-to-image" className="text-sm text-[var(--muted)] hover:text-[var(--text)]">PDF to Image</Link>
-              <Link to="/inpage-to-pdf" className="text-sm text-[var(--muted)] hover:text-[var(--text)]">InPage to PDF</Link>
-              <Link to="/inpage-to-image" className="text-sm text-[var(--muted)] hover:text-[var(--text)]">InPage to Image</Link>
-            </nav>
-          </div>
-
-          <div>
-            <p className="text-xs uppercase tracking-wider text-[var(--accent)] mb-3">Formats</p>
-            <div className="flex flex-col gap-2">
-              <span className="text-sm text-[var(--muted)]">Word · Excel · PowerPoint</span>
-              <span className="text-sm text-[var(--muted)]">PDF · JPG · PNG</span>
-              <span className="text-sm text-[var(--muted)]">WebP · GIF</span>
+          {/* Links (two compact columns) */}
+          <div className="md:col-span-3 flex flex-col gap-4">
+            <h4 className="text-xs uppercase tracking-wider text-[var(--accent)] mb-3">Quick links</h4>
+            <div className="grid grid-cols-3 gap-2 text-sm text-[var(--muted)]">
+              {/** split NAV_LINKS into two columns without increasing footer height */}
+              {(() => {
+                const half = Math.ceil(NAV_LINKS.length / 2);
+                const left = NAV_LINKS.slice(0, half);
+                const right = NAV_LINKS.slice(half);
+                return (
+                  <>
+                    <div className="flex flex-col gap-1">
+                      {left.map(({ to, label }) => (
+                        <Link key={to} to={to} className="hover:text-[var(--text)]">{label}</Link>
+                      ))}
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      {right.map(({ to, label }) => (
+                        <Link key={to} to={to} className="hover:text-[var(--text)]">{label}</Link>
+                      ))}
+                    </div>
+                  </>
+                );
+              })()}
             </div>
           </div>
         </div>
       </div>
 
-      <div style={{ borderTop: "1px solid var(--border)" }} className="py-4">
-        <div className="max-w-6xl mx-auto px-6 text-sm text-[var(--muted)]">
-          © {new Date().getFullYear()} FileForge · Built for speed and privacy.
+      <div className="border-t border-[var(--border)]">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-3 text-sm text-[var(--muted)]">
+          <div>© {new Date().getFullYear()} FileForge · Built for speed and privacy.</div>
+          <div className="text-[var(--muted)]">Made with care · <Link to="/privacy" className="hover:text-[var(--text)]">Privacy</Link></div>
         </div>
       </div>
     </footer>

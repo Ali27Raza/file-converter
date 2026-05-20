@@ -3,6 +3,7 @@ import axios from "axios";
 import { FaRobot } from "react-icons/fa";
 import { FiDownload, FiFileText, FiPaperclip, FiSend, FiX } from "react-icons/fi";
 import { FORMAT_MAP, buildRequest, OUTPUT_LABELS } from "../conversionConfig";
+import { downloadFile } from "../utils/downloadFile";
 
 const API_BASE = "http://localhost:5000";
 
@@ -48,6 +49,10 @@ function BotIcon() {
 
 function MessageBubble({ msg, progress, converting }) {
   const isUser = msg.from === "user";
+
+  async function handleDownload() {
+    await downloadFile(msg.downloadUrl, msg.filename);
+  }
 
   if (msg.type === "file") {
     return (
@@ -120,18 +125,19 @@ function MessageBubble({ msg, progress, converting }) {
           color: "var(--text)",
         }}>
           <div style={{ marginBottom: 12 }}>{msg.text}</div>
-          <a
-            href={msg.downloadUrl}
-            download={msg.filename}
+          <button
+            type="button"
+            onClick={handleDownload}
             style={{
               display: "inline-flex", alignItems: "center", gap: 8,
               background: "var(--accent)", color: "#0a0a0f",
               padding: "9px 18px", borderRadius: 10,
               textDecoration: "none", fontWeight: 700, fontSize: 13,
+              border: "none", cursor: "pointer",
             }}
           >
             <FiDownload aria-hidden="true" /> Download {msg.filename}
-          </a>
+          </button>
         </div>
       </div>
     );
@@ -239,7 +245,7 @@ export function ChatBot() {
         from: "bot",
         type: "download",
         text: `Done! Your ${OUTPUT_LABELS[outputFormat] || outputFormat.toUpperCase()} file is ready.`,
-        downloadUrl: `${API_BASE}${downloadUrl}`,
+        downloadUrl,
         filename,
       });
     } catch (err) {
