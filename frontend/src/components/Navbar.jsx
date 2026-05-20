@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { FiMenu, FiX, FiChevronRight } from "react-icons/fi";
+import { FiMenu, FiX, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 export const NAV_LINKS = [
   { to: "/", label: "Home" },
@@ -24,12 +24,18 @@ export function Navbar() {
   const [open, setOpen] = useState(false);
 
   const navRef = useRef(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
 
   useEffect(() => {
     function checkScroll() {
       const el = navRef.current;
-      if (!el) return setCanScrollRight(false);
+      if (!el) {
+        setCanScrollLeft(false);
+        setCanScrollRight(false);
+        return;
+      }
+      setCanScrollLeft(el.scrollLeft > 1);
       setCanScrollRight(el.scrollWidth > el.clientWidth && el.scrollLeft < el.scrollWidth - el.clientWidth - 1);
     }
     checkScroll();
@@ -57,29 +63,58 @@ export function Navbar() {
         </Link>
 
         {/* Desktop links: horizontally scrollable without wrapping */}
-        <div className="hidden md:flex items-center gap-2 ml-8">
-          <div
-            ref={navRef}
-            className="flex gap-2 items-center overflow-x-auto whitespace-nowrap"
-            style={{ maxWidth: "64rem", scrollbarWidth: "none", msOverflowStyle: "none" }}
+        <div className="hidden md:flex items-center gap-2 ml-6 lg:ml-8">
+          <button
+            onClick={() => scrollNav(-240)}
+            className="p-2 rounded-md text-[var(--muted)] hover:text-[var(--text)] transition-colors"
+            aria-label="Scroll links left"
+            style={{ display: canScrollLeft ? 'inline-flex' : 'none' }}
           >
-            {NAV_LINKS.map(({ to, label }) => (
-              <Link
-                key={to}
-                to={to}
-                onClick={() => setOpen(false)}
-                className={`inline-block px-3 py-2 rounded-md text-sm transition-colors ${pathname === to ? "text-[var(--accent)] bg-[rgba(232,255,71,0.06)]" : "text-[var(--muted)] hover:text-[var(--text)] hover:bg-[rgba(255,255,255,0.03)]"}`}
-                style={{ whiteSpace: 'nowrap' }}
-              >
-                {label}
-              </Link>
-            ))}
+            <FiChevronLeft size={18} />
+          </button>
+
+          <div className="relative">
+            <div
+              ref={navRef}
+              className="flex gap-2 items-center overflow-x-auto whitespace-nowrap"
+              style={{ maxWidth: "48rem", scrollbarWidth: "none", msOverflowStyle: "none" }}
+            >
+              {NAV_LINKS.map(({ to, label }) => (
+                <Link
+                  key={to}
+                  to={to}
+                  onClick={() => setOpen(false)}
+                  className={`inline-block px-3 py-2 rounded-md text-sm transition-colors ${pathname === to ? "text-[var(--accent)] bg-[rgba(232,255,71,0.06)]" : "text-[var(--muted)] hover:text-[var(--text)] hover:bg-[rgba(255,255,255,0.03)]"}`}
+                  style={{ whiteSpace: 'nowrap' }}
+                >
+                  {label}
+                </Link>
+              ))}
+            </div>
+
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-y-0 left-0 w-10"
+              style={{
+                background: "linear-gradient(to right, rgba(10,10,15,0.96), rgba(10,10,15,0))",
+                opacity: canScrollLeft ? 1 : 0,
+                transition: "opacity 180ms ease",
+              }}
+            />
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-y-0 right-0 w-10"
+              style={{
+                background: "linear-gradient(to left, rgba(10,10,15,0.96), rgba(10,10,15,0))",
+                opacity: canScrollRight ? 1 : 0,
+                transition: "opacity 180ms ease",
+              }}
+            />
           </div>
 
-          {/* Right chevron to reveal more links by scrolling */}
           <button
             onClick={() => scrollNav(240)}
-            className="p-2 rounded-md text-[var(--muted)] hover:text-[var(--text)]"
+            className="p-2 rounded-md text-[var(--muted)] hover:text-[var(--text)] transition-colors"
             aria-label="Scroll links right"
             style={{ display: canScrollRight ? 'inline-flex' : 'none' }}
           >

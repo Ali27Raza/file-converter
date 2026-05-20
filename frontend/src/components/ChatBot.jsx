@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import axios from "axios";
 import { FaRobot } from "react-icons/fa";
-import { FiDownload, FiFileText, FiPaperclip, FiSend, FiX } from "react-icons/fi";
+import { FiDownload, FiFileText, FiMessageCircle, FiPaperclip, FiSend, FiX } from "react-icons/fi";
 import { FORMAT_MAP, buildRequest, OUTPUT_LABELS } from "../conversionConfig";
 import { downloadFile } from "../utils/downloadFile";
 
@@ -54,19 +54,43 @@ function MessageBubble({ msg, progress, converting }) {
     await downloadFile(msg.downloadUrl, msg.filename);
   }
 
+  const bubbleBaseStyle = {
+    background: "var(--surface)",
+    borderRadius: "12px 12px 12px 2px",
+    padding: "12px 14px",
+    maxWidth: "min(100%, 100%)",
+    fontSize: 13,
+    color: "var(--text)",
+    overflowWrap: "anywhere",
+    wordBreak: "break-word",
+  };
+
+  const textBubbleStyle = {
+    background: isUser ? "rgba(232,255,71,0.08)" : "var(--surface)",
+    border: isUser ? "1px solid rgba(232,255,71,0.22)" : "none",
+    borderRadius: isUser ? "12px 12px 2px 12px" : "12px 12px 12px 2px",
+    padding: "12px 14px",
+    maxWidth: "100%",
+    fontSize: 13,
+    color: "var(--text)",
+    lineHeight: 1.6,
+    whiteSpace: "pre-wrap",
+    overflowWrap: "anywhere",
+    wordBreak: "break-word",
+  };
+
   if (msg.type === "file") {
     return (
-      <div style={{ display: "flex", justifyContent: "flex-end" }}>
+      <div style={{ display: "flex", justifyContent: "flex-end", width: "100%" }}>
         <div style={{
-          background: "rgba(232,255,71,0.08)",
-          border: "1px solid rgba(232,255,71,0.22)",
-          borderRadius: "12px 12px 2px 12px",
-          padding: "10px 14px",
-          maxWidth: "75%",
-          display: "flex", alignItems: "center", gap: 10,
+          ...textBubbleStyle,
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+          maxWidth: "min(92%, 100%)",
         }}>
           <FiFileText size={22} aria-hidden="true" />
-          <div>
+          <div style={{ minWidth: 0 }}>
             <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text)", wordBreak: "break-all" }}>
               {msg.fileName}
             </div>
@@ -81,16 +105,9 @@ function MessageBubble({ msg, progress, converting }) {
 
   if (msg.type === "progress") {
     return (
-      <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
+      <div style={{ display: "flex", alignItems: "flex-start", gap: 8, width: "100%" }}>
         <BotIcon />
-        <div style={{
-          background: "var(--surface)",
-          borderRadius: "12px 12px 12px 2px",
-          padding: "12px 14px",
-          maxWidth: "80%",
-          fontSize: 13,
-          color: "var(--text)",
-        }}>
+        <div style={{ ...bubbleBaseStyle, flex: 1, minWidth: 0 }}>
           <div style={{ marginBottom: 10 }}>{msg.text}</div>
           <div style={{
             height: 6, background: "var(--border)",
@@ -114,26 +131,20 @@ function MessageBubble({ msg, progress, converting }) {
 
   if (msg.type === "download") {
     return (
-      <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
+      <div style={{ display: "flex", alignItems: "flex-start", gap: 8, width: "100%" }}>
         <BotIcon />
-        <div style={{
-          background: "var(--surface)",
-          borderRadius: "12px 12px 12px 2px",
-          padding: "14px 16px",
-          maxWidth: "82%",
-          fontSize: 13,
-          color: "var(--text)",
-        }}>
+        <div style={{ ...bubbleBaseStyle, flex: 1, minWidth: 0 }}>
           <div style={{ marginBottom: 12 }}>{msg.text}</div>
           <button
             type="button"
             onClick={handleDownload}
             style={{
-              display: "inline-flex", alignItems: "center", gap: 8,
+              display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8,
               background: "var(--accent)", color: "#0a0a0f",
               padding: "9px 18px", borderRadius: 10,
               textDecoration: "none", fontWeight: 700, fontSize: 13,
               border: "none", cursor: "pointer",
+              maxWidth: "100%",
             }}
           >
             <FiDownload aria-hidden="true" /> Download {msg.filename}
@@ -145,20 +156,9 @@ function MessageBubble({ msg, progress, converting }) {
 
   // Regular text message
   return (
-    <div style={{ display: "flex", justifyContent: isUser ? "flex-end" : "flex-start", alignItems: "flex-start", gap: 8 }}>
+    <div style={{ display: "flex", justifyContent: isUser ? "flex-end" : "flex-start", alignItems: "flex-start", gap: 8, width: "100%" }}>
       {!isUser && <BotIcon />}
-      <div style={{
-        background: isUser ? "rgba(232,255,71,0.08)" : "var(--surface)",
-        border: isUser ? "1px solid rgba(232,255,71,0.22)" : "none",
-        borderRadius: isUser ? "12px 12px 2px 12px" : "12px 12px 12px 2px",
-        padding: "10px 14px",
-        maxWidth: "80%",
-        fontSize: 13,
-        color: "var(--text)",
-        lineHeight: 1.55,
-        whiteSpace: "pre-wrap",
-        wordBreak: "break-word",
-      }}>
+      <div style={{ ...textBubbleStyle, maxWidth: "min(90%, 100%)" }}>
         {msg.text}
       </div>
     </div>
@@ -340,24 +340,25 @@ export function ChatBot() {
   const canSend = inputText.trim().length > 0 && !converting;
 
   return (
-    <div style={{ position: "fixed", bottom: 24, right: 24, zIndex: 1000 }}>
+    <div style={{ position: "fixed", bottom: 16, right: 16, left: 16, zIndex: 1000, display: "flex", justifyContent: "flex-end", pointerEvents: "none" }}>
       {isOpen && (
         <div
           onDrop={handleDrop}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           style={{
-            width: 370,
-            height: 520,
+            width: "min(420px, calc(100vw - 32px))",
+            height: "min(72vh, 620px)",
+            maxHeight: "calc(100vh - 32px)",
             background: "var(--bg)",
             border: `1px solid ${dragging ? "var(--accent)" : "var(--border)"}`,
             borderRadius: 16,
             boxShadow: "0 24px 64px rgba(0,0,0,0.5)",
             display: "flex",
             flexDirection: "column",
-            marginBottom: 16,
             overflow: "hidden",
             transition: "border-color 0.2s",
+            pointerEvents: "auto",
           }}
         >
           {/* Header */}
@@ -380,7 +381,7 @@ export function ChatBot() {
                   FileForge Assistant
                 </div>
                 <div style={{ fontSize: 11, color: "rgba(0,0,0,0.55)" }}>
-                  {converting ? "Converting…" : <span style={{ color: "#009000 " }}>Online · Ready to convert</span>}
+                    {converting ? "Converting…" : <span style={{ color: "#1f8f3a" }}>Online · Ready to convert</span>}
                 </div>
               </div>
             </div>
@@ -424,6 +425,7 @@ export function ChatBot() {
           <div style={{
             flex: 1, overflowY: "auto", padding: "14px 14px",
             display: "flex", flexDirection: "column", gap: 10,
+            minHeight: 0,
           }}>
             {messages.map((msg) => (
               <MessageBubble key={msg.id} msg={msg} progress={progress} converting={converting} />
@@ -452,12 +454,12 @@ export function ChatBot() {
                   cursor: "pointer", color: "var(--muted)",
                   fontSize: 13, lineHeight: 1,
                 }}
-              ><FiX aria-hidden="true" /></button>
+              >Clear</button>
             </div>
           )}
 
           {/* Input */}
-          <div style={{ padding: "10px 12px 12px", borderTop: "1px solid var(--border)" }}>
+          <div style={{ padding: "10px 12px 12px", borderTop: "1px solid var(--border)", flexShrink: 0 }}>
             <div style={{ display: "flex", gap: 8, alignItems: "flex-end" }}>
               <input
                 type="file"
@@ -499,6 +501,7 @@ export function ChatBot() {
                   fontFamily: "inherit",
                   lineHeight: 1.4,
                   opacity: converting ? 0.5 : 1,
+                  minWidth: 0,
                 }}
               />
 
@@ -535,6 +538,8 @@ export function ChatBot() {
           fontSize: isOpen ? 22 : 26,
           boxShadow: "0 4px 20px rgba(232,255,71,0.35)",
           transition: "transform 0.2s, box-shadow 0.2s",
+          pointerEvents: "auto",
+          flexShrink: 0,
         }}
         onMouseEnter={(e) => {
           e.currentTarget.style.transform = "scale(1.08)";
@@ -546,7 +551,7 @@ export function ChatBot() {
         }}
         title={isOpen ? "Close assistant" : "Open file conversion assistant"}
       >
-        {isOpen ? <FiX aria-hidden="true" /> : <FaRobot aria-hidden="true" />}
+        {isOpen ? <FiMessageCircle aria-hidden="true" /> : <FaRobot aria-hidden="true" />}
       </button>
     </div>
   );
