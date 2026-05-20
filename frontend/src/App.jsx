@@ -18,6 +18,7 @@ import { Help } from "./pages/Help";
 import { Blog } from "./pages/Blog";
 import { BlogArticlePage } from "./pages/BlogArticlePage";
 import { NotFoundPage } from "./pages/NotFoundPage";
+import { ChatBot } from "./components/ChatBot";
 
 const SEO_BY_ROUTE = {
   "/": {
@@ -216,6 +217,7 @@ function AppLayout() {
         </main>
         <Footer />
       </div>
+      <ChatBot />
     </>
   );
 }

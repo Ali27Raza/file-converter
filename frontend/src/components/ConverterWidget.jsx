@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { FiAlertTriangle, FiX } from "react-icons/fi";
 import { DropZone } from "./DropZone";
 import { FormatSelector } from "./FormatSelector";
 import { ProgressBar } from "./ProgressBar";
@@ -54,7 +55,10 @@ export function ConverterWidget({ allowedInputExts, forcedOutputFormat, limitOut
         <>
           {typeError && (
             <div className="mb-4 rounded-md p-4 text-[var(--error)]" style={{ background: 'rgba(255,77,109,0.08)', border: '1px solid rgba(255,77,109,0.25)', fontSize: 13 }}>
-              ⚠ {typeError}
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+                <FiAlertTriangle aria-hidden="true" />
+                <span>{typeError}</span>
+              </span>
             </div>
           )}
 
@@ -66,7 +70,9 @@ export function ConverterWidget({ allowedInputExts, forcedOutputFormat, limitOut
                 <p className="font-bold mb-1">{file.name}</p>
                 <p className="text-[12px] text-[var(--muted)]">{inputLabel} · {(file.size / 1024).toFixed(1)} KB</p>
               </div>
-              <button onClick={handleReset} className="text-[var(--muted)] text-xl">✕</button>
+              <button onClick={handleReset} className="text-[var(--muted)] text-xl" aria-label="Clear file">
+                <FiX aria-hidden="true" />
+              </button>
             </div>
           )}
 
@@ -91,7 +97,10 @@ export function ConverterWidget({ allowedInputExts, forcedOutputFormat, limitOut
 
           {status === "error" && (
             <div className="mt-5 rounded-md p-4 text-[var(--error)]" style={{ background: 'rgba(255,77,109,0.08)', border: '1px solid rgba(255,77,109,0.25)', fontSize: 13 }}>
-              ⚠ {errorMsg}
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+                <FiAlertTriangle aria-hidden="true" />
+                <span>{errorMsg}</span>
+              </span>
             </div>
           )}
 
