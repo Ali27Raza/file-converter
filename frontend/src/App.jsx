@@ -19,6 +19,12 @@ import { Blog } from "./pages/Blog";
 import { BlogArticlePage } from "./pages/BlogArticlePage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { ChatBot } from "./components/ChatBot";
+import { AuthProvider } from "./contexts/AuthContext";
+import { ProtectedRoute } from "./components/admin/ProtectedRoute";
+import { AdminLogin } from "./pages/admin/AdminLogin";
+import { AdminDashboard } from "./pages/admin/AdminDashboard";
+import { AdminBlogList } from "./pages/admin/AdminBlogList";
+import { AdminBlogEditor } from "./pages/admin/AdminBlogEditor";
 
 const SEO_BY_ROUTE = {
   "/": {
@@ -122,10 +128,7 @@ function toFaqSchema(faqs) {
     mainEntity: faqs.map((item) => ({
       "@type": "Question",
       name: item.q,
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: item.a,
-      },
+      acceptedAnswer: { "@type": "Answer", text: item.a },
     })),
   };
 }
@@ -133,30 +136,18 @@ function toFaqSchema(faqs) {
 function toBreadcrumbSchema(pathname) {
   const routeLabel = ROUTE_LABELS[pathname];
   if (!routeLabel || pathname === "/") return null;
-
   const siteUrl = (import.meta.env.VITE_SITE_URL || "https://yourwebsite.com").replace(/\/$/, "");
-
   return {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      {
-        "@type": "ListItem",
-        position: 1,
-        name: "Home",
-        item: `${siteUrl}/`,
-      },
-      {
-        "@type": "ListItem",
-        position: 2,
-        name: routeLabel,
-        item: `${siteUrl}${pathname}`,
-      },
+      { "@type": "ListItem", position: 1, name: "Home", item: `${siteUrl}/` },
+      { "@type": "ListItem", position: 2, name: routeLabel, item: `${siteUrl}${pathname}` },
     ],
   };
 }
 
-function AppLayout() {
+function PublicLayout() {
   const location = useLocation();
   const seo = SEO_BY_ROUTE[location.pathname] || {
     title: "Page Not Found | FileForge",
@@ -188,7 +179,6 @@ function AppLayout() {
         robots={seo.robots || "index,follow"}
         jsonLd={routeSchemas}
       />
-
       <div style={{
         minHeight: "100vh",
         display: "flex",
@@ -225,7 +215,46 @@ function AppLayout() {
 export default function App() {
   return (
     <BrowserRouter>
-      <AppLayout />
+      <AuthProvider>
+        <Routes>
+          {/* Admin routes — standalone, no Navbar/Footer */}
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/blog"
+            element={
+              <ProtectedRoute>
+                <AdminBlogList />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/blog/new"
+            element={
+              <ProtectedRoute>
+                <AdminBlogEditor />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/blog/edit/:slug"
+            element={
+              <ProtectedRoute>
+                <AdminBlogEditor />
+              </ProtectedRoute>
+            }
+          />
+          {/* Public site */}
+          <Route path="/*" element={<PublicLayout />} />
+        </Routes>
+      </AuthProvider>
     </BrowserRouter>
   );
 }
