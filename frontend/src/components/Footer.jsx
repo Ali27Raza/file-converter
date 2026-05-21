@@ -6,19 +6,27 @@ import { FiGithub, FiTwitter, FiMail } from "react-icons/fi";
 
 export function Footer() {
   return (
-    <footer className="mt-12 bg-[var(--surface)] border-t border-[var(--border)]">
-      <div className="max-w-6xl mx-auto px-6 py-12">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-10 items-start">
-          {/* Brand */}
-          <div className="md:col-span-1 flex flex-col gap-4">
-            <div className="flex items-center gap-3">
-              <img src={logo} alt="FileForge logo" className="w-10 h-10 object-contain rounded-md shadow-sm" />
-              <div>
-                <div className="text-lg font-extrabold text-[var(--text)]">File<span className="text-[var(--accent)]">Forge</span></div>
-                <div className="text-xs text-[var(--muted)]">Fast, private file conversion</div>
+    <footer className="mt-10 bg-[var(--surface)] border-t border-[var(--border)]">
+      <div className="max-w-6xl mx-auto px-6 py-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 items-start">
+          {/* Left: Logo only */}
+          <div className="flex items-start md:justify-start justify-center">
+            <img
+              src={logo}
+              alt="FileForge logo"
+              className="w-60 h-60  shrink-0 object-contain rounded-lg shadow-sm"
+            />
+          </div>
+
+          {/* Middle: Text */}
+          <div className="flex flex-col items-center md:items-start text-center md:text-left gap-4">
+            <div className="flex flex-col leading-tight">
+              <div className="text-2xl md:text-3xl font-extrabold text-[var(--text)]">
+                File<span className="text-[var(--accent)]">Forge</span>
               </div>
+              <div className="text-base text-[var(--muted)]">Fast, private file conversion</div>
             </div>
-            <p className="text-sm text-[var(--muted)] max-w-sm">
+            <p className="text-sm text-[var(--muted)] max-w-md">
               Convert documents and images quickly — no account, no tracking, files removed after conversion.
             </p>
             <div className="flex items-center gap-3 mt-2">
@@ -34,30 +42,13 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Links (two compact columns) */}
-          <div className="md:col-span-3 flex flex-col gap-4">
+          {/* Right: Quick links */}
+          <div className="flex flex-col items-center md:items-start gap-4">
             <h4 className="text-xs uppercase tracking-wider text-[var(--accent)] mb-3">Quick links</h4>
-            <div className="grid grid-cols-3 gap-2 text-sm text-[var(--muted)]">
-              {/** split NAV_LINKS into two columns without increasing footer height */}
-              {(() => {
-                const half = Math.ceil(NAV_LINKS.length / 2);
-                const left = NAV_LINKS.slice(0, half);
-                const right = NAV_LINKS.slice(half);
-                return (
-                  <>
-                    <div className="flex flex-col gap-1">
-                      {left.map(({ to, label }) => (
-                        <Link key={to} to={to} className="hover:text-[var(--text)]">{label}</Link>
-                      ))}
-                    </div>
-                    <div className="flex flex-col gap-1">
-                      {right.map(({ to, label }) => (
-                        <Link key={to} to={to} className="hover:text-[var(--text)]">{label}</Link>
-                      ))}
-                    </div>
-                  </>
-                );
-              })()}
+            <div className="grid grid-cols-2 gap-x-8 gap-y-1 text-sm text-[var(--muted)]">
+              {NAV_LINKS.map(({ to, label }) => (
+                <Link key={to} to={to} className="hover:text-[var(--text)]">{label}</Link>
+              ))}
             </div>
           </div>
         </div>

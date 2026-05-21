@@ -10,14 +10,14 @@ export function InPageToImagePage() {
             <div className="w-full max-w-6xl mx-auto md:flex md:items-center md:gap-12">
                 <div className="md:flex-1 mb-8 md:mb-0">
                     <div className="inline-flex items-center mb-6 text-sm uppercase tracking-wider" style={{ color: 'var(--accent)', background: 'rgba(232,255,71,0.06)', borderRadius: 999, padding: '6px 14px', border: '1px solid rgba(232,255,71,0.12)' }}>
-                        <span className="font-semibold">INPAGE → IMAGE</span>
+                        <span className="font-semibold">INPAGE TO IMAGE</span>
                     </div>
 
                     <h1 className="text-4xl md:text-5xl font-extrabold leading-tight mb-4" style={{ color: 'var(--text)' }}>
                         Convert <span className="text-[var(--accent)]">InPage</span><br />to images.
                     </h1>
 
-                    <p className="text-base md:text-lg text-[var(--muted)]">INPAGE → JPG · PNG</p>
+                    <p className="text-base md:text-lg text-[var(--muted)]">INPAGE to JPG · PNG</p>
                 </div>
 
                 <div className="w-full md:w-96">

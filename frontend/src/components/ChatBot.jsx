@@ -209,7 +209,7 @@ export function ChatBot() {
       const supported = FORMAT_MAP[inputExt].outputs
         .map((f) => OUTPUT_LABELS[f] || f.toUpperCase())
         .join(", ");
-      botSay(`Can't convert ${FORMAT_MAP[inputExt].label} → ${OUTPUT_LABELS[outputFormat] || outputFormat.toUpperCase()}.\n\nAvailable outputs for ${FORMAT_MAP[inputExt].label}: ${supported}`);
+      botSay(`Can't convert ${FORMAT_MAP[inputExt].label} to ${OUTPUT_LABELS[outputFormat] || outputFormat.toUpperCase()}.\n\nAvailable outputs for ${FORMAT_MAP[inputExt].label}: ${supported}`);
       setPendingFormat(null);
       return;
     }
